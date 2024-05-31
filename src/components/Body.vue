@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import LeftContent from './BottomFoot/LeftContent.vue';
-import RightContent from './BottomFoot/RightContent.vue';
+// import LeftContent from './BottomFoot/LeftContent.vue';
+// import RightContent from './BottomFoot/RightContent.vue';
+import History from './BottomFoot/History.vue';
 </script>
 
 <template>
     <div class="bodyBox">
-        <LeftContent></LeftContent>
-        <RightContent></RightContent>
+        <!-- <LeftContent></LeftContent> -->
+        <!-- <RightContent></RightContent> -->
+        <History></History>
     </div>
 </template>
 
 <style scoped>
 .bodyBox{
+    position:relative;
     display: flex;
     width: 75%;
     height: 75%;
@@ -19,6 +22,7 @@ import RightContent from './BottomFoot/RightContent.vue';
     border-radius: 20px;
     align-items: center;
     justify-content: space-around;
+    overflow: hidden;
     
 }
 </style>

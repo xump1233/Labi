@@ -12,6 +12,13 @@ watch(question,()=>{
     target.value = question.target
 })
 
+function choiseItem(value){
+    question.selectItem(target.value,value)
+    setTimeout(() => {
+        question.nextQuestion()
+    }, 300);
+}
+
 </script>
 
 <template>
@@ -19,20 +26,20 @@ watch(question,()=>{
         <div class="qTitle">
             <span>{{ target + 1 + '.' }}</span>{{ questionList[target].title }}
         </div>
-        <div class="qSelect" @click="question.nextQuestion()">
-            <div class="qSelectItem">
+        <div class="qSelect" @click="">
+            <div class="qSelectItem" @click="choiseItem('A')" :class=" questionList[target].isSelected=='A'?'item_selected':''">
                 <div>A</div>
                 <div>{{ questionList[target].A }}</div>
             </div>
-            <div class="qSelectItem">
+            <div class="qSelectItem" @click="choiseItem('B')" :class=" questionList[target].isSelected=='B'?'item_selected':''">
                 <div>B</div>
                 <div>{{ questionList[target].B }}</div>
             </div>
-            <div class="qSelectItem">
+            <div class="qSelectItem" @click="choiseItem('C')" :class=" questionList[target].isSelected=='C'?'item_selected':''">
                 <div>C</div>
                 <div>{{ questionList[target].C }}</div>
             </div>
-            <div class="qSelectItem">
+            <div class="qSelectItem" @click="choiseItem('D')" :class=" questionList[target].isSelected=='D'?'item_selected':''">
                 <div>D</div>
                 <div>{{ questionList[target].D }}</div>
             </div>
@@ -76,6 +83,7 @@ watch(question,()=>{
     display: flex;
     margin: 2% 0;
     position: relative;
+    cursor: pointer;
 }
 .qSelectItem>div:first-child{
     position: absolute;
@@ -96,4 +104,13 @@ watch(question,()=>{
     display: flex;
     align-items: center;
 }
+
+.item_selected {
+
+}
+.item_selected>div:first-child{
+    background-color: skyblue;
+    color: burlywood;
+}
+
 </style>

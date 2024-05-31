@@ -1,11 +1,21 @@
 <script setup>
 import { getQuestion } from '@/store/Questions';
+import axios from 'axios';
 import { watch } from 'vue';
 let question = getQuestion()
 let questionList = question.questionList
 watch(question,()=>{
     questionList = question.questionList
 })
+
+function submit(){
+    axios.post('http://localhost:8003/submit',{
+        data:questionList
+    }).then(()=>{
+        console.log("发送成功")
+    })
+
+}
 
 </script>
 
@@ -19,8 +29,11 @@ watch(question,()=>{
         </div>
     </div>
     <div class="qListBtn">
-        <button @click="question.lastQuestion">上一题</button>
-        <button @click="question.nextQuestion">下一题</button>
+        <div>
+            <button @click="question.lastQuestion">上一题</button>
+            <button @click="question.nextQuestion">下一题</button>
+        </div>
+        <button @click="submit">交卷</button>
     </div>
 </template>
 
@@ -33,14 +46,15 @@ watch(question,()=>{
     flex-wrap: wrap;
     justify-content: space-between;
 }
+
 .qListTitle{
     width: 100%;
     color: orange;
     font-size: 24px;
 }
 .qListItem{
-    width: 30px;
-    height: 30px;
+    width: 50px;
+    height: 50px;
     margin:0px 5px;
     border: 2px solid skyblue;
     border-radius: 50%;
@@ -51,15 +65,36 @@ watch(question,()=>{
     font-size: 18px;
     cursor: pointer;
 }
+@media(max-width:1268px){
+    .qListItem{
+        width: 30px;
+        height: 30px;
+    }
+}
 .qSelected{
-    color: red;
-    border-color: red;
+    color: whitesmoke;
+    border-color: bisque;
 }
 .qListBtn{
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+.qListBtn>div{
+    width: 60%;
+    display: flex;
+    justify-content: space-between;
+}
+.qListBtn>div>button{
+    background-color: skyblue;
+    border-radius: 2px;
+    width: 45%;
+    border:none;
+    cursor: pointer;
+    height: 30px;
+    color:white;
+    margin-bottom: 10px;
 }
 .qListBtn>button{
     background-color: skyblue;

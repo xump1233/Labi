@@ -8,6 +8,7 @@ export const getQuestion = defineStore('questions',{
             target:0,
             questionList:[
                 {
+                  "id": '',
                   "title": "",
                   "type": "",
                   "A": "",
@@ -23,7 +24,7 @@ export const getQuestion = defineStore('questions',{
     actions:{
         getQuestionList(){
             return new Promise((resolve,reject)=>{
-                axios.get('http://localhost:8003').then(
+                axios.get('http://localhost:8003/everyday').then(
                     res=>{
                         resolve(res.data)
                     }
@@ -48,10 +49,9 @@ export const getQuestion = defineStore('questions',{
         },
         redirectTo(value){
             this.target = value
-            this.selectItem(value)
         },
-        selectItem(value){
-            this.questionList[value].isSelected = true
+        selectItem(value,index){
+            this.questionList[value].isSelected = index
         }
     }
 })

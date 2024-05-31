@@ -2,18 +2,21 @@
 import Head from './components/Head.vue';
 import Body from './components/Body.vue';
 import { getQuestion } from './store/Questions';
-import { onBeforeMount,watch } from 'vue';
+import { onBeforeMount} from 'vue';
+
 const question = getQuestion()
+
 
 onBeforeMount(()=>{
   question.getQuestionList().then(value=>{
     question.questionList.shift()
     question.questionList = value
     question.questionList.forEach(item=>{
-      item.isSelected = false
+      item.isSelected = ''
     })
     question.isSuccess = true
   })
+  
 })
 </script>
 
