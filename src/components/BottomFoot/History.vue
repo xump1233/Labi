@@ -5,13 +5,13 @@ import { ref } from 'vue';
 
 let history = getHistory()
 
+let historyList = ref(history.historyList)
+
 onMounted(()=>{
     history.getHistoryList().then(value=>{
         history.historyList = value
     })
 })
-
-let historyList = ref(history.historyList)
 
 watch(history,()=>{
     historyList.value = history.historyList

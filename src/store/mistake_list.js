@@ -4,7 +4,21 @@ import axios from "axios";
 export const getMistake = defineStore('mistake',{
     state(){
         return {
-            mistakeList:[]
+            mistakeList:[{
+                "id":'',
+                "title": "",
+                "type": "",
+                "A": "",
+                "B": "",
+                "C": "",
+                "D": "",
+                "source": "",
+                "answer": "",
+                "analysis": "",
+                "time":'',
+                "myAnswer":'',
+                "mark":''
+            }]
         }
     },
     actions:{

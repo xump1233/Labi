@@ -1,14 +1,16 @@
 <script setup lang="ts">
 // import LeftContent from './BottomFoot/LeftContent.vue';
 // import RightContent from './BottomFoot/RightContent.vue';
-import History from './BottomFoot/History.vue';
+// import History from './BottomFoot/History.vue';
+import Mistake from './BottomFoot/Mistake.vue';
 </script>
 
 <template>
     <div class="bodyBox">
         <!-- <LeftContent></LeftContent> -->
         <!-- <RightContent></RightContent> -->
-        <History></History>
+        <!-- <History></History> -->
+        <Mistake></Mistake>
     </div>
 </template>
 
