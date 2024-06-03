@@ -23,7 +23,7 @@ onBeforeMount(()=>{
 <template>
   <div class="appBox">
     <Head></Head>
-    <Body></Body>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -54,6 +54,12 @@ html,body{
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-
+  border-radius: 10px;
+  margin: 1px;
+  box-sizing: border-box;
+  /* background: linear-gradient(to right, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.2) 100%), url('./assets/images/bg.jpg');
+  background-size: cover;
+  background-repeat: no-repeat; */
+  background-color: #f9efef;
 }
 </style>

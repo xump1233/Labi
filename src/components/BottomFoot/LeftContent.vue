@@ -51,7 +51,7 @@ function choiseItem(value){
 .leftBox {
     width: 75%;
     height: 95%;
-    background-color: salmon;
+    background-color: rgba(250, 128, 114,0.8);
     border-radius: 10px;
     display: flex;
     flex-direction: column;
