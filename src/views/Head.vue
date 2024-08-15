@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import UserPart from './TopHead/UserPart.vue';
+import UserPart from '@/components/TopHead/UserPart.vue';
 import { getDirect } from '@/store/direct';
 let direct = getDirect()
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import LeftContent from './BottomFoot/LeftContent.vue';
-import RightContent from './BottomFoot/RightContent.vue';
-import History from './BottomFoot/History.vue';
-import Mistake from './BottomFoot/Mistake.vue';
+import LeftContent from '@/components/BottomFoot/LeftContent.vue';
+import RightContent from '@/components/BottomFoot/RightContent.vue';
+import History from '@/components/BottomFoot/History.vue';
+import Mistake from '@/components/BottomFoot/Mistake.vue';
 import { getDirect } from '@/store/direct';
 import { ref,watch } from 'vue';
 let direct = getDirect()

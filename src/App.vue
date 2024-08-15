@@ -1,6 +1,5 @@
 <script setup>
-import Head from './components/Head.vue';
-import Body from './components/Body.vue';
+import Head from './views/Head.vue';
 import { getQuestion } from './store/Questions';
 import { onBeforeMount} from 'vue';
 
