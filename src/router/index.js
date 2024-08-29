@@ -1,20 +1,23 @@
 // src/router/index.js 
 import { createRouter, createWebHashHistory } from 'vue-router';
-import Body from '../components/Body.vue'; // 引入你的视图组件
+// import Body from '../views/Body.vue'; // 引入你的视图组件
+import History from '@/views/History.vue';
+import Mistake from '@/views/Mistake.vue';
+import Everyday from '@/views/Everyday.vue';
 
 const routes = [
     { 
         path: '/', 
-        component: Body,
+        component: Everyday,
     },
     { 
         path: '/history', 
-        component: Body 
+        component: History 
 
     },
     { 
         path: '/mistake', 
-        component: Body 
+        component: Mistake 
 
     },
 ];

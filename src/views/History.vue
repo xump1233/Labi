@@ -1,39 +1,34 @@
 <script setup>
-import { watch,onMounted } from 'vue'
+import { watch,onMounted,onBeforeUnmount,nextTick } from 'vue'
 import { getHistory } from '@/store/history_list';
 import { ref } from 'vue';
+import useDebounce from '@/utils/useDebounce';
+
 
 let history = getHistory()
-
 let historyList = ref(history.historyList)
-
-onMounted(()=>{
-    history.getHistoryList().then(value=>{
-        history.historyList = value
-    })
+history.getHistoryList().then(value=>{
+    history.historyList = value
 })
-
 watch(history,()=>{
-    historyList.value = history.historyList
+    historyList.value = history.historyList;
+    nextTick(()=>{
+        if(hlist.value){
+            for(let i =0;i<hlist.value.children.length;i++){
+                const obj = {
+                    title:i+1+'. '+historyList.value[i].title.substring(0,10)+'...',
+                    offset:hlist.value.children[i].offsetTop-90
+                }
+                offsetInfo.value.push(obj);
+            }
+            // console.log(offsetInfo.value)
+        }
+    })
+    
 })
 
-let h_nav = ref()
-let lastPosition = 0;
-
-function getHnav(e){
-    if(e.target.scrollTop>lastPosition){
-        h_nav.value.style.height = '0'
-        h_nav.value.style.display = 'none'
-    }
-    else{
-        h_nav.value.style.height = '80px'
-        h_nav.value.style.display = 'flex'
-    }
-    lastPosition = e.target.scrollTop
-}
-
-const value2 = ref('')
-const value = ref('')
+const duration = ref('')
+const type = ref('')
 const options = [
   {
     value: '常识判断',
@@ -52,18 +47,46 @@ const options = [
     label: '资料分析',
   }
 ]
+
+const hlist = ref();
+const offsetInfo = ref([]);
+const showItem = ref(0);
+
+function moveTo(value){
+    hlist.value.scrollTo({
+        top:value,
+        behavior:"smooth"
+    })
+}
+function judgeInView(e){
+    for(let i=0;i<offsetInfo.value.length;i++){
+        if(offsetInfo.value[i].offset>=e.target.scrollTop){
+            showItem.value = i;
+            break;
+        }
+    }
+}
+const deJudgeInView = useDebounce(judgeInView);
+
+onMounted(()=>{
+    hlist.value.addEventListener('scroll',deJudgeInView);
+    
+})
+onBeforeUnmount(()=>{
+    hlist.value.removeEventListener('scroll',deJudgeInView);
+})
 </script>
 
 <template>
-    <div class="history_nav" ref="h_nav">
-        <div class="history_nav_item">
+    <div class="history_search">
+        <div class="history_search_item">
             <div>筛选</div>
         </div>
-        <div class="history_nav_item">
+        <div class="history_search_item">
             <div>范围（做题时间）：</div>
             <div>
                 <el-date-picker
-                    v-model="value2"
+                    v-model="duration"
                     type="datetimerange"
                     start-placeholder="开始时间"
                     end-placeholder="结束时间"
@@ -74,11 +97,11 @@ const options = [
                 />
             </div>
         </div>
-        <div class="history_nav_item">
+        <div class="history_search_item">
             <div>题型：</div>
             <div>
                 <el-select
-                    v-model="value"
+                    v-model="type"
                     clearable
                     placeholder="选择题型"
                     style="width: 240px"
@@ -94,7 +117,17 @@ const options = [
             </div>
         </div>
     </div>
-    <div class="history_list" @scroll="getHnav($event)">
+    <div class="history_nav">
+        <div
+        v-for="item,index of offsetInfo"
+        :key="index" class="nav_item"
+        @click="moveTo(item.offset)"
+        :style="{color:showItem===index?'#66f':'#fff'}"
+        >
+            {{ item.title }}
+        </div>
+    </div>
+    <div class="history_list" ref="hlist">
         <div v-for="item,index in historyList" :key="index" class="history_item">
             <div class="q_title" :style="{backgroundColor:item.myAnswer === item.answer?'rgba(181, 236, 156,0.1)':'rgba(210, 105, 30,0.1)'}">
                 {{ index+1+"."+item.title }}
@@ -110,11 +143,11 @@ const options = [
                 <div>正确答案：{{ item.answer }}</div>
                 <div>
                     作答时间：{{ item.time }}
-                    <div class="result">
+                    <!-- <div class="result">
                         <img src="../../assets/images/true.png" alt="" v-if="item.myAnswer === item.answer">
                         <img src="../../assets/images/false.png" alt="" v-else>
-                        <div :style="{color:item.myAnswer === item.answer?'#b5ec9c':'chocolate'}">{{ item.myAnswer === item.answer?'回答正确':'回答错误' }}</div>
-                    </div>
+                        <div :style="{color:item.myAnswer === item.answer?'#b5ec9c':'chocolate',opacity:0.3}">{{ item.myAnswer === item.answer?'回答正确':'回答错误' }}</div>
+                    </div> -->
                 </div>
                 
             </div>
@@ -128,9 +161,9 @@ const options = [
 
 
 <style scoped>
-.history_nav{
+.history_search{
     width: 100%;
-    height: 80px;
+    height: 70px;
     background-color: rgb(181, 236, 156);
     position: absolute;
     top:0;
@@ -140,7 +173,7 @@ const options = [
     justify-content: space-around;
     transition: all 0.3s;
 }
-.history_nav_item{
+.history_search_item{
     width: 30%;
     height: 100%;
     display: flex;
@@ -148,14 +181,41 @@ const options = [
     justify-content: space-around;
     align-items: center;
 }
-.history_nav_item>div:first-child{
+.history_search_item>div:first-child{
     font-size: 18px;
     font-weight: bold;
     color: #66f;
 }
+.history_nav{
+    position: relative;
+    width: 800px;
+    color: white;
+    height: calc(100% - 120px);
+    background-color: #f66;
+    margin-left: 20px;
+    top: 30px;
+    border-radius: 10px;
+    overflow: auto;
+}
+.history_nav .nav_item{
+    margin: 5px 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.history_nav::-webkit-scrollbar{
+    background-color: rgba(255, 255, 255,0.1);
+    width: 10px;
+}
+.history_nav::-webkit-scrollbar-thumb {
+  border-radius: 10px; /* 圆角 */
+  width: 5px;
+  background-color: rgba(212, 224, 236,0.5); /* 滑块颜色 */
+  background-clip: padding-box; /* 保证滑块边缘不会超出滚动条的宽度 */
+  border: 1px solid transparent; /* 可选，增加边框效果 */
+}
 .history_list{
     height: 100%;
-    width: 100%;
+    flex-grow: 1;
     padding-top: 80px;
     overflow-y: scroll;
 }
@@ -187,15 +247,7 @@ const options = [
     border-bottom: 1px #98bee1 solid;
     border-top: 1px #98bee1 solid;
 }
-.history_item .answer .result{
-    position: absolute;
-    font-size: 24px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    top:-150%;
-    right: 10%;
-}
+
 .history_item .answer .result>img{
     width: 36px;
 }

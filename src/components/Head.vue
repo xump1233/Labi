@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import UserPart from '@/components/TopHead/UserPart.vue';
-import { getDirect } from '@/store/direct';
-let direct = getDirect()
-
 
 </script>
 
@@ -13,16 +9,14 @@ let direct = getDirect()
             <img src="../assets/images/big_logo.png" alt="">蜡笔Mark
         </div>
         <div class="header_content">
-            <div>每天提升一点点。。。</div>
+            <div>...占位信息。。。</div>
             <div class="header_nav">
-                <router-link to="/" @click="direct.changeGoal(1)" class="header_nav_item" active-class="active">Everyday</router-link>
-                <router-link to="/history" @click="direct.changeGoal(2)" class="header_nav_item" active-class="active">历史记录</router-link>
-                <router-link to="/mistake" @click="direct.changeGoal(3)" class="header_nav_item" active-class="active">我的错题</router-link>
+                <router-link to="/" class="header_nav_item" active-class="active">Everyday</router-link>
+                <router-link to="/history" class="header_nav_item" active-class="active">历史记录</router-link>
+                <router-link to="/mistake" class="header_nav_item" active-class="active">我的错题</router-link>
             </div>
         </div>
-        
-        
-        <UserPart></UserPart>
+        <!-- <UserPart></UserPart> -->
     </div>
 </template>
 
@@ -34,6 +28,7 @@ let direct = getDirect()
     height: 15%;
     background-color: skyblue;
     border-radius: 20px;
+    margin:30px 0px 20px 0px;
 }
 .header_title{
     width: 30%;

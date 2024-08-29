@@ -1,8 +1,9 @@
 <script setup>
-import { ref,onMounted,onBeforeUnmount,nextTick } from 'vue';
+import { ref,onMounted,onBeforeUnmount,nextTick,watch,watchEffect } from 'vue';
 const fileBox = ref();
 const edit = ref();
 const image = ref();
+const canvas = ref();
 
 const imgUrl = ref('');
 const classList = ref({
@@ -10,14 +11,37 @@ const classList = ref({
     "showIcon":true,
     "showPreview":false
 })
+const direction = ref({
+    minTop:0,
+    minLeft:0,
+    maxLeft:0,
+    maxTop:0,
+    maxHeight:0,
+    offsetX:0,
+    offsetY:0
+});
+const editInfo = ref({
+    width:50+'px',
+    height:50+'px',
+    left: 0,
+    top: 0
+});
 
-const distance = ref({
-    x:0,
-    y:0,
-    minX:0,
-    minY:0,
-    maxX:0,
-    maxY:0
+watch(()=>editInfo.value.width,(oldValue,newValue)=>{
+    let start = parseInt(oldValue);
+    let end = parseInt(newValue);
+    if(start-end>0){
+        direction.value.maxLeft -= 2;
+        direction.value.maxTop -= 2;
+    }
+    else if(start - end ===0){
+        return;
+    }
+    else{
+        direction.value.maxLeft += 2;
+        direction.value.maxTop += 2;
+    }
+    
 })
 
 function selectImg(){
@@ -33,63 +57,119 @@ function showImg(e){
         classList.value.showIcon = false;
         classList.value.showPreview = true;
         nextTick(()=>{
-            let rect = image.value.getBoundingClientRect();
-            console.log(rect);
-            distance.value.minX = rect.left;
-            distance.value.minY = rect.top;
-            distance.value.maxX = rect.left+rect.width;
-            distance.value.maxY = rect.top+rect.height;
-            edit.value.style.top = image.value.offsetTop + 'px';
-            edit.value.style.left = image.value.offsetLeft + 'px';
+            let rectImg = image.value.getBoundingClientRect();
+            direction.value.minLeft = 0;
+            direction.value.minTop = rectImg.top-1.6;
+            direction.value.maxLeft = rectImg.width-parseInt(editInfo.value.width)-2;
+            direction.value.maxTop = rectImg.top + rectImg.height-parseInt(editInfo.value.height)-4;
+            direction.value.maxHeight = rectImg.height+direction.value.minTop-4;
+            let centerX = (direction.value.maxLeft+direction.value.minLeft)/2;
+            let centerY = (direction.value.maxTop+direction.value.minTop)/2;
+            editInfo.value.top = centerY+'px';
+            editInfo.value.left = centerX+'px';
         })
     })
 }
 
-function move(e){
-    if(e.clientY - distance.value.y>distance.value.maxY){
-        edit.value.style.top = distance.value.maxY + 'px';
+function biggerEdit(e){
+    e.preventDefault();
+    let width = parseInt(editInfo.value.width);
+    let left = parseInt(editInfo.value.left);
+    let height = parseInt(editInfo.value.height);
+    let top = parseInt(editInfo.value.top);
+    let step = 2;
+    if (e.deltaY < 0) {
+        if(height+top>=direction.value.maxHeight){
+            return;
+        }
+        width+=step;
+        height+=step;
+    } else if (e.deltaY > 0) {
+        width-=step;
+        height-=step;
     }
-    else if(e.clientY - distance.value.y<distance.value.minY){
-        edit.value.style.top = distance.value.minY + 'px';
-    }
-    else{
-        edit.value.style.top = e.clientY - distance.value.y + 'px';
-    }
-
-    if(e.clientX - distance.value.x>distance.value.maxX){
-        edit.value.style.left = distance.value.maxX + 'px';
-    }
-    else if(e.clientX - distance.value.x<distance.value.minX){
-        edit.value.style.left = distance.value.minX + 'px';
-    }
-    else{
-        edit.value.style.left = e.clientX - distance.value.x + 'px';
-    }
-    
-    
-    console.log('move');
+    editInfo.value.width = width+'px';
+    editInfo.value.height = height+'px';
 }
+
+let lastX = -999;
+let lastY = -999;
+function moveEdit(e){ 
+    let offsetLeft = 0;
+    let offsetTop = 0;
+    if(lastX === -999 || lastY === -999){
+        lastX = e.clientX;
+        lastY = e.clientY;
+    }
+    else{
+        offsetLeft = e.clientX - lastX;
+        offsetTop = e.clientY - lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+    }
+    let finLeft = parseInt(editInfo.value.left)+offsetLeft;
+    let finTop = parseInt(editInfo.value.top)+offsetTop;
+    if(finLeft>direction.value.maxLeft){
+        return;
+    }
+    else if(finLeft<direction.value.minLeft){
+        return;
+    }
+    if(finTop>direction.value.maxTop){
+        return;
+    }
+    else if(finTop<direction.value.minTop){
+        return;
+    }
+    editInfo.value.left = finLeft+'px';
+    editInfo.value.top = finTop+'px';
+}
+function downEdit(e){
+    direction.value.offsetX = e.offsetX;
+    direction.value.offsetY = e.offsetY;
+    window.addEventListener('mousemove',moveEdit);
+    window.addEventListener('mouseup',upEdit);
+}
+function upEdit(){
+    window.removeEventListener('mousemove',moveEdit);
+    window.removeEventListener('mouseup',upEdit);
+}
+
+function handlerCanvas(){
+    canvas.value.width = 200;
+    canvas.value.height = 200;
+    const ctx = canvas.value.getContext('2d');
+    ctx.drawImage(image.value,parseInt(editInfo.value.left),parseInt(editInfo.value.top),parseInt(editInfo.value.width),parseInt(editInfo.value.height),0,0,200,200);
+
+}
+
+watchEffect(()=>{
+    if(canvas.value){
+        let rate = image.value.naturalWidth/image.value.width;
+        const ctx = canvas.value.getContext('2d');
+        ctx.drawImage(
+            image.value,
+            parseInt(editInfo.value.left)*rate,
+            (parseInt(editInfo.value.top)-direction.value.minTop)*rate,
+            parseInt(editInfo.value.width)*rate,
+            parseInt(editInfo.value.height)*rate,
+            0,0,canvas.value.width,canvas.value.height,
+        );
+    }
+})
 
 onMounted(()=>{
     fileBox.value.addEventListener('change',showImg);
-    edit.value.addEventListener('mousedown',(e)=>{
-        document.body.style.userSelect = 'none'; 
-        let rect = edit.value.getBoundingClientRect();
-        distance.value.x = e.clientX - rect.left;
-        distance.value.y = e.clientY - rect.top;
-        window.addEventListener('mousemove',move);
-    })
-    edit.value.addEventListener('mouseup',(e)=>{
-        document.body.style.userSelect = '';
-        window.removeEventListener('mousemove',move);
-    })
-    window.addEventListener('mouseup',()=>{
-        window.removeEventListener('mousemove',move);
-    })
-
+    edit.value.addEventListener('wheel',biggerEdit);
+    edit.value.addEventListener('mousedown',downEdit);
+    canvas.value.width = 200;
+    canvas.value.height = 200;
+    
 })
 onBeforeUnmount(()=>{
     fileBox.value.removeEventListener('change',showImg);
+    edit.value.removeEventListener('wheel',biggerEdit);
+    edit.value.removeEventListener('mousedown',downEdit);
 })
 
 </script>
@@ -102,10 +182,14 @@ onBeforeUnmount(()=>{
         </div>
         <div class="select-preview">
             <img :src="imgUrl" ref="image">
-            <div class="edit-box" ref="edit"></div>
+            <div class="mask"></div>
+            <div class="edit-box" ref="edit" :style="editInfo"></div>
         </div>
     </div>
     <input type="file" class="file-box" ref="fileBox">
+    <div style="margin: 0 20px;">
+        <canvas ref="canvas"></canvas>
+    </div>
 </template>
 
 <style scoped>
@@ -144,7 +228,18 @@ onBeforeUnmount(()=>{
     position: relative;
 }
 .select-preview>img{
+    position: relative;
     width:var(--size) ;
+}
+.select-preview>.mask{
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--size);
+    height: var(--size);
+    background-color: rgba(186, 186, 186,0.5);
 }
 .file-box{
     display: none;
@@ -152,9 +247,7 @@ onBeforeUnmount(()=>{
 
 .edit-box{
     position: absolute;
-    width: 50px;
-    height: 50px;
-    border:1px solid black;
+    border:2px dashed #6f6;
     cursor:move;
     /* cursor:move; nw-resize sw-resize*/
 }
